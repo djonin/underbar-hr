@@ -161,7 +161,17 @@
     //   }); // should be 5, regardless of the iterator function passed in
     //          No accumulator is given so the first element is used.
     _.reduce = function(collection, iterator, accumulator) {
-        
+      var result = accumulator;
+      var i = 0;
+      _.each(collection, function(val, key) {
+        if((result === undefined)&&(i === 0)) {
+          result = val;
+        } else {
+          result = iterator(result, val);
+        }
+        i++;
+      });
+      return result;
     };
 
     // Determine if the array or object contains a given value (using `===`).
@@ -179,12 +189,23 @@
     // Determine whether all of the elements match a truth test.
     _.every = function(collection, iterator) {
         // TIP: Try re-using reduce() here.
+        var condition = iterator || _.identity;
+        return _.reduce(collection, function(acc, val) {
+          if(acc && !condition(val)) {
+            acc = false;
+          }
+          return acc;
+        }, true);
     };
 
     // Determine whether any of the elements pass a truth test. If no iterator is
     // provided, provide a default one
     _.some = function(collection, iterator) {
         // TIP: There's a very clever way to re-use every() here.
+        var condition = iterator || _.identity;
+        return !_.every(collection, function(val) {
+          return !condition(val);
+        });
     };
 
     /**
@@ -205,7 +226,15 @@
     //   }, {
     //     bla: "even more stuff"
     //   }); // obj1 now contains key1, key2, key3 and bla
-    _.extend = function(obj) {};
+    _.extend = function(obj) {
+      var argsArr = Array.prototype.slice.call(arguments);
+      return _.reduce(argsArr, function(acc, val) {
+        _.each(val, function(item, key) {
+          acc[key] = item;
+        });
+        return acc;
+      });
+    };
 
     // Like extend, but doesn't ever overwrite a key that already
     // exists in obj
