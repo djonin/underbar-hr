@@ -39,8 +39,9 @@
     // last element.
     _.last = function(array, n) {
         if (n < 1) return [];
-        return (n === undefined) ? array[array.length - 1] : array.slice(-
-            n);
+        return (n === undefined) ?
+            array[array.length - 1] :
+            array.slice(Math.max(0, array.length - n));
     };
 
     // Call iterator(value, key, collection) for each element of collection.
