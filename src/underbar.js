@@ -454,12 +454,15 @@
     _.intersection = function() {
         var counter = {};
         var argslength = arguments.length;
-        for(var i = 0; i<argslength; i++) {
-            for(var j =0; j<arguments[i].length; j++) {
+        for (var i = 0; i < argslength; i++) {
+            for (var j = 0; j < arguments[i].length; j++) {
                 var key = JSON.stringify(arguments[i][j]);
-                if(counter.hasOwnProperty(key)) {
+                if (counter.hasOwnProperty(key)) {
                     counter[key].count++;
-                } else counter[key] = { 'value' : arguments[i][j], 'count' : 1 };
+                } else counter[key] = {
+                    'value': arguments[i][j],
+                    'count': 1
+                };
             }
         }
 
@@ -477,9 +480,9 @@
         _.each(array, function(item) {
             unique[JSON.stringify(item)] = item;
         });
-        for(var i = 1; i<arguments.length; i++) {
+        for (var i = 1; i < arguments.length; i++) {
             _.each(arguments[i], function(item) {
-                if(unique.hasOwnProperty(JSON.stringify(item))) {
+                if (unique.hasOwnProperty(JSON.stringify(item))) {
                     delete unique[JSON.stringify(item)];
                 }
             });
@@ -496,6 +499,29 @@
     // Note: This is difficult! It may take a while to implement.
     _.throttle = function(func, wait) {
 
-        
+        var alreadyCalled = false;
+        var queued = false;
+        var res;
+        var args;
+        var timeoutFunc = function(){
+            alreadyCalled = false;
+            if(queued){
+                resFunc.apply(this, args);
+            }
+        };
+        var resFunc = function() {
+            if (!alreadyCalled) {
+                alreadyCalled = true;
+                res = func.apply(this, arguments);
+                queued = false;
+                setTimeout(timeoutFunc, wait + 1);
+            } else {
+                queued = true;
+                args = arguments;
+            }
+            return res;
+        };
+
+        return resFunc;
     };
 }());
