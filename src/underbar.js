@@ -334,7 +334,7 @@
         var argsArray = Array.prototype.slice.call(arguments, 2);
 
         setTimeout(function() {
-          func.apply(this, argsArray);
+            func.apply(this, argsArray);
         }, wait);
     };
 
@@ -349,17 +349,22 @@
     // input array. For a tip on how to make a copy of an array, see:
     // http://mdn.io/Array.prototype.slice
     _.shuffle = function(array) {
-      var indexArray = [];
+        var indexArray = [];
 
-      for(var i = 0; i<array.length; i++) {
-        indexArray[i] = { 'val' : array[i], 'weight' : Math.floor(Math.random() * array.length) };
-      }
+        for (var i = 0; i < array.length; i++) {
+            indexArray[i] = {
+                val: array[i],
+                weight: Math.floor(Math.random() * array.length)
+            };
+        }
 
-      indexArray.sort(function(a,b) {return a.weight > b.weight} );
+        indexArray.sort(function(a, b) {
+            return a.weight > b.weight
+        });
 
-      return _.map(indexArray, function(item) {
-        return item.val;
-      });
+        return _.map(indexArray, function(item) {
+            return item.val;
+        });
     };
 
     /**
@@ -372,20 +377,61 @@
 
     // Calls the method named by functionOrKey on each value in the list.
     // Note: You will need to learn a bit about .apply to complete this.
-    _.invoke = function(collection, functionOrKey, args) {};
+    _.invoke = function(collection, functionOrKey, args) {
+        var isFunc = typeof functionOrKey !== 'string';
+
+        return _.map(collection, function(val) {
+            if (isFunc) {
+                return functionOrKey.apply(val, args);
+            } else {
+                return val[functionOrKey].apply(val, args);
+            }
+        });
+    };
 
     // Sort the object's values by a criterion produced by an iterator.
     // If iterator is a string, sort objects by that property with the name
     // of that string. For example, _.sortBy(people, 'name') should sort
     // an array of people by their name.
-    _.sortBy = function(collection, iterator) {};
+    _.sortBy = function(collection, iterator) {
+        var isString = typeof iterator === 'string';
+
+        return collection.sort(function(a, b) {
+            if (isString) {
+                return a[iterator] - b[iterator];
+            }
+
+            return iterator(a) - iterator(b);
+        });
+    };
 
     // Zip together two or more arrays with elements of the same index
     // going together.
     //
     // Example:
     // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
-    _.zip = function() {};
+    _.zip = function() {
+        var res = [];
+
+        var args = Array.prototype.slice.call(arguments);
+
+        var zipLength = _.reduce(args, function(acc, val) {
+            return acc < val.length ? val.length : acc;
+        }, 0);
+
+        for (var i = 0; i < zipLength; i++) {
+            var item = _.map(args, function(val) {
+                if (val.length <= i) {
+                    return undefined;
+                }
+                return val[i];
+            });
+
+            res.push(item);
+        }
+
+        return res;
+    };
 
     // Takes a multidimensional array and converts it to a one-dimensional array.
     // The new array should contain all elements of the multidimensional array.
