@@ -161,17 +161,17 @@
     //   }); // should be 5, regardless of the iterator function passed in
     //          No accumulator is given so the first element is used.
     _.reduce = function(collection, iterator, accumulator) {
-      var result = accumulator;
-      var i = 0;
-      _.each(collection, function(val, key) {
-        if((result === undefined)&&(i === 0)) {
-          result = val;
-        } else {
-          result = iterator(result, val);
-        }
-        i++;
-      });
-      return result;
+        var result = accumulator;
+        var i = 0;
+        _.each(collection, function(val, key) {
+            if ((result === undefined) && (i === 0)) {
+                result = val;
+            } else {
+                result = iterator(result, val);
+            }
+            i++;
+        });
+        return result;
     };
 
     // Determine if the array or object contains a given value (using `===`).
@@ -191,10 +191,10 @@
         // TIP: Try re-using reduce() here.
         var condition = iterator || _.identity;
         return _.reduce(collection, function(acc, val) {
-          if(acc && !condition(val)) {
-            acc = false;
-          }
-          return acc;
+            if (acc && !condition(val)) {
+                acc = false;
+            }
+            return acc;
         }, true);
     };
 
@@ -204,7 +204,7 @@
         // TIP: There's a very clever way to re-use every() here.
         var condition = iterator || _.identity;
         return !_.every(collection, function(val) {
-          return !condition(val);
+            return !condition(val);
         });
     };
 
@@ -227,18 +227,28 @@
     //     bla: "even more stuff"
     //   }); // obj1 now contains key1, key2, key3 and bla
     _.extend = function(obj) {
-      var argsArr = Array.prototype.slice.call(arguments);
-      return _.reduce(argsArr, function(acc, val) {
-        _.each(val, function(item, key) {
-          acc[key] = item;
+        var argsArr = Array.prototype.slice.call(arguments);
+        return _.reduce(argsArr, function(acc, val) {
+            _.each(val, function(item, key) {
+                acc[key] = item;
+            });
+            return acc;
         });
-        return acc;
-      });
     };
 
     // Like extend, but doesn't ever overwrite a key that already
     // exists in obj
-    _.defaults = function(obj) {};
+    _.defaults = function(obj) {
+        var argsArr = Array.prototype.slice.call(arguments);
+        return _.reduce(argsArr, function(acc, val) {
+            _.each(val, function(item, key) {
+                if (!acc.hasOwnProperty(key)) {
+                    acc[key] = item;
+                }
+            });
+            return acc;
+        });
+    };
 
     /**
      * FUNCTIONS
@@ -279,7 +289,40 @@
     // _.memoize should return a function that, when called, will check if it has
     // already computed the result for the given argument and return that value
     // instead if possible.
-    _.memoize = function(func) {};
+    _.memoize = function(func) {
+        var results = {};
+
+        return function() {
+            var args = arguments;
+
+            function recursiveStore(collection, argIndex) {
+                if (argIndex === args.length) {
+                    if (!collection.hasOwnProperty('result')) {
+                        collection.result = func.apply(this, args);
+                    }
+
+                    return collection.result;
+                }
+
+                if (!collection.hasOwnProperty('values')) {
+                    collection.values = {};
+                }
+
+                var argString =
+                    JSON.stringify(args[argIndex]) + "";
+
+                if (!collection.values.hasOwnProperty(argString)) {
+                    collection.values[argString] = {};
+                }
+
+                return recursiveStore(
+                    collection.values[argString],
+                    argIndex + 1);
+            }
+
+            return recursiveStore(results, 0);
+        };
+    };
 
     // Delays a function for the given number of milliseconds, and then calls
     // it with the arguments supplied.
@@ -287,7 +330,9 @@
     // The arguments for the original function are passed after the wait
     // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
     // call someFunction('a', 'b') after 500ms
-    _.delay = function(func, wait) {};
+    _.delay = function(func, wait) {
+        
+    };
 
     /**
      * ADVANCED COLLECTION OPERATIONS
