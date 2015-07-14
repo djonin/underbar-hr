@@ -438,20 +438,64 @@
     // The new array should contain all elements of the multidimensional array.
     //
     // Hint: Use Array.isArray to check if something is an array
-    _.flatten = function(nestedArray, result) {};
+    _.flatten = function(nestedArray, result) {
+        if (!Array.isArray(nestedArray)) {
+            return nestedArray;
+        }
+        var result = [];
+        _.each(nestedArray, function(item) {
+            result = result.concat(_.flatten(item))
+        })
+        return result;
+    };
 
     // Takes an arbitrary number of arrays and produces an array that contains
     // every item shared between all the passed-in arrays.
-    _.intersection = function() {};
+    _.intersection = function() {
+        var counter = {};
+        var argslength = arguments.length;
+        for(var i = 0; i<argslength; i++) {
+            for(var j =0; j<arguments[i].length; j++) {
+                var key = JSON.stringify(arguments[i][j]);
+                if(counter.hasOwnProperty(key)) {
+                    counter[key].count++;
+                } else counter[key] = { 'value' : arguments[i][j], 'count' : 1 };
+            }
+        }
+
+        counter = _.filter(counter, function(item) {
+            return item.count === argslength;
+        });
+
+        return _.pluck(counter, 'value');
+    };
 
     // Take the difference between one array and a number of other arrays.
     // Only the elements present in just the first array will remain.
-    _.difference = function(array) {};
+    _.difference = function(array) {
+        var unique = {};
+        _.each(array, function(item) {
+            unique[JSON.stringify(item)] = item;
+        });
+        for(var i = 1; i<arguments.length; i++) {
+            _.each(arguments[i], function(item) {
+                if(unique.hasOwnProperty(JSON.stringify(item))) {
+                    delete unique[JSON.stringify(item)];
+                }
+            });
+        }
+
+        return _.map(unique, _.identity);
+
+    };
 
     // Returns a function, that, when invoked, will only be triggered at most once
     // during a given window of time.  See the Underbar readme for extra details
     // on this function.
     //
     // Note: This is difficult! It may take a while to implement.
-    _.throttle = function(func, wait) {};
+    _.throttle = function(func, wait) {
+
+        
+    };
 }());
